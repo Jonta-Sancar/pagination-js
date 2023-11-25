@@ -1,65 +1,70 @@
+const pagetion = (parameter)=>{
+  let parameters = returnParameters();
 
-    function pagination(parameter){
-        let page       = 0;
-        let search_arr = [];
+  const page_query_index = returnPageIndex(parameters);
 
-        if(location.search){
-            const search     = location.search.split('?')[1];
-            
-            search_arr = search.split('&');
+  const actual_page = parameters[page_query_index].split('=')[1];
 
-            search_arr.forEach(query=>{
-                const query_arr = query.split('=');
-                if(query_arr[0] == 'pagina'){
-                    page = query_arr[1];
-                }
-            });
-        }
+  let page = returnPage(parameter, actual_page);
 
-        switch (parameter) {
-            case "+":
-                page++;
-                break;
+  let new_query = `page=${page}`;
 
-            case "-":
-                page--;
-                break;
-        
-            default:
-                page = parameter;
-                break;
-        }
+  if (location.search) {
+    parameters[page_query_index] = new_query;
+  } else {
+    parameters = [`page=${page}`];
+  }
 
-        if(page <= 0){
-            page = 1;
-        }
+  let new_search = `?${parameters.join('&')}`;
 
-        let new_query = `pagina=${page}`;
+  location.search = new_search;
+}
 
-        if(location.search){
-            search_arr.forEach(query=>{
-                const index = search_arr.indexOf(query);
-                const query_arr = query.split('=');
+const returnParameters = ()=>{
+  let search_parameters = [];
+  
+  if (location.search) {
+    const search = location.search.split('?')[1];
+    search_parameters = search.split('&');
+  }
 
-                if(query_arr[0] == 'pagina'){
-                    search_arr[index] = new_query;
-                }
-            });
-        } else {
-            search_arr = [`pagina=${page}`];
-        }
+  return search_parameters;
+}
 
-        let new_search = `?${search_arr.join('&')}`;
+const returnPageIndex = (parameters)=>{
+  let index = -1;
 
-        if(new_search.indexOf('pagina') < 0){
-            page = 2;
+  parameters.forEach(query => {
+    const i = parameters.indexOf(query);
+    const query_arr = query.split('=');
 
-            new_query = `pagina=${page}`;
-
-            const new_search_arr = new_search.split('?')[1].split('&');
-
-            new_search = `?${new_query}&${new_search_arr.join('&')}`;
-        }
-
-        location.search = new_search;
+    if (query_arr[0] == 'page') {
+      index = i;
     }
+  });
+
+  return index;
+}
+
+const returnPage = (parameter, actual_page)=>{
+  let page = actual_page;
+  switch (parameter) {
+    case "+":
+      page++;
+      break;
+
+    case "-":
+      page--;
+      break;
+
+    default:
+      page = parameter;
+      break;
+  }
+
+  if (page <= 0) {
+    page = 1;
+  }
+
+  return page;
+}
