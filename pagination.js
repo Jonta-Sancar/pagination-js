@@ -1,4 +1,4 @@
-const pagetion = (parameter)=>{
+const pagenation = (parameter)=>{
   let parameters = returnParameters();
 
   const page_query_index = returnPageIndex(parameters);
